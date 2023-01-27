@@ -1,4 +1,4 @@
-const focusModeWeekDays = new Set([0, 1, 2, 3, 4]); // from Monday to Friday
+const focusModeWeekDays = new Set([1, 2, 3, 4, 5]); // from Monday to Friday (6 - Saturday, 0 - Sunday)
 
 const isInFocusMode = () => {
     const date = new Date();
