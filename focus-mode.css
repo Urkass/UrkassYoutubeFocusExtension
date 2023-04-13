@@ -1,3 +1,7 @@
-body.focusModeOn #contents {
+body.focusModeYoutubeOn #contents {
+    display: none !important;
+}
+
+body.focusModeOn {
     display: none !important;
 }

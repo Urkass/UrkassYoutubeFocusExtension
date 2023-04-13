@@ -1,16 +1,3 @@
-const focusModeWeekDays = new Set([1, 2, 3, 4, 5]); // from Monday to Friday (6 - Saturday, 0 - Sunday)
-
-const isInFocusMode = () => {
-    const date = new Date();
-    const weekDay = date.getDay();
-    const hour = date.getHours();
-    return focusModeWeekDays.has(weekDay) && hour > 6 && hour < 19;
-};
-
-const isYoutubeMainPage = () => {
-    return window.location.pathname === '/';
-};
-
 const setBadgeText = (state) =>
     chrome.runtime.sendMessage({
         payload: {
@@ -19,14 +6,30 @@ const setBadgeText = (state) =>
         type: 'setBooleanBadge',
     });
 
-const process = async () => {
-    const focusModeOn = isInFocusMode() && isYoutubeMainPage();
-    setBadgeText(focusModeOn);
-    if (focusModeOn) {
-        document.querySelector('body').classList.add('focusModeOn');
-    } else {
-        document.querySelector('body').classList.remove('focusModeOn');
-    }
-};
-
-document.addEventListener('yt-navigate-finish', process);
+if (window.location.host === 'www.youtube.com') {
+    const isYoutubeMainPage = () => {
+        return window.location.pathname === '/';
+    };
+    const process = async () => {
+        const response = await chrome.runtime.sendMessage({ type: 'getFocusMode' });
+        const focusModeOn = response.isInFocusMode && isYoutubeMainPage();
+        setBadgeText(focusModeOn);
+        if (focusModeOn) {
+            document.querySelector('body').classList.add('focusModeYoutubeOn');
+        } else {
+            document.querySelector('body').classList.remove('focusModeYoutubeOn');
+        }
+    };
+    document.addEventListener('yt-navigate-finish', process);
+} else {
+    const process = async () => {
+        const response = await chrome.runtime.sendMessage({ type: 'getFocusMode' });
+        setBadgeText(response.isInFocusMode);
+        if (response.isInFocusMode) {
+            document.querySelector('body').classList.add('focusModeOn');
+        } else {
+            document.querySelector('body').classList.remove('focusModeOn');
+        }
+    };
+    document.addEventListener('DOMContentLoaded', process);
+}
